@@ -40,7 +40,7 @@ for(int input_size = 10; input_size <= 100; input_size += 10){
 }
 
 // Export the data to a csv file
-profile.export();
+profile.export(JProfile.Milliseconds);
 ```
 
 ## Downloads
