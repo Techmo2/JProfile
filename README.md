@@ -1,5 +1,5 @@
 # JProfile
-JProfile is a simple tool that allows for the easy analysis of code.
+JProfile is a simple tool that allows for the easy analysis of code. It automatically keeps track of function performance and exports the results in csv format for use in excel and other spreadsheet software.
 
 ## Usage
 First, we should include the JProfile class.
