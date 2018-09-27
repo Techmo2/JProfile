@@ -44,4 +44,4 @@ profile.export();
 ```
 
 ## Downloads
-If your're not in the compiling mood, you can download the jar release [here](https://drive.google.com/file/d/1FJWlKSx6_34mIH4wT1y4jeg1_ceDkRnf/view?usp=sharing).
+If you just want a convenient jar to include in your code, you can download the jar release [here](https://drive.google.com/file/d/1FJWlKSx6_34mIH4wT1y4jeg1_ceDkRnf/view?usp=sharing).
