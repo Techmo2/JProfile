@@ -27,7 +27,7 @@ public class RandomSort {
         // We also specify that it can hold a maximum of 1000 data points, but we won't use all of them.
         JProfile<Integer> profile = new JProfile<>("Random List Function", 1000);
 
-        // Collect different data points by using out function with different inputs
+        // Collect different data points by using our function with different inputs
         for(int length = min_length; length <= max_length; length += 1000){
 
             // Start a new data point
