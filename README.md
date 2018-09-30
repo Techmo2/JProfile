@@ -8,8 +8,10 @@ import net.devmentality.JProfile;
 ```
 To begin analyzing code, a new profile must first be created. When this is done, we must also specify the name of the profile, and the maximum number of data points it can hold. Any unused capacity will be ignored.
 
+We also specify the data type used as the x axis when collecting data. This will also be the data type used as the id for a sample.
+
 ```java
-JProfile profile = new JProfile("TimerFunction", 50);
+JProfile<Integer> profile = new JProfile<Integer>("TimerFunction", 50);
 ```
 
 After creating the profile, we're ready to start adding data points. In order to get accurate figures, it is highly recommended that you run your algorithm many times per measurement.
@@ -32,6 +34,12 @@ for(int input_size = 10; input_size <= 100; input_size += 10){
     // We can use any data type for our x axis, as long as it is a Comparable type
     profile.startSample(input_size);
     for(int i = 0; i < 100; i++){
+    
+        // We can pause the current sample to perform other tasks
+        profile.pauseSample(input_size);
+        modifyArray(input);
+        profile.resumeSample(input_size);
+        
         ourCoolAlgorithm(input);
     }
     
