@@ -1,9 +1,10 @@
 package net.devmentality;
 
 /**
- * A utility class that makes timing algorithms in java more convenient
+ * A utility class that makes timing algorithms in java more convenient.
  *
  * @author Bradly Tillmann
+ * 
  */
 
 import java.io.FileWriter;
@@ -14,11 +15,14 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 public class JProfile <T extends Comparable<? super T>> {
+	
     private String name;
     private int size;
     private int numProfiles;
     private double[] startTimeIndex;
     private double[] deltaTimeIndex;
+    private double[] pauseStartTimeIndex;
+    private double[] pauseDeltaTimeIndex;
     private Hashtable<T, Integer> startTimeTable;
 
     /* Some standard values to use when exporting csv files */
@@ -41,6 +45,8 @@ public class JProfile <T extends Comparable<? super T>> {
 
         this.startTimeIndex = new double[maxSamples];
         this.deltaTimeIndex = new double[maxSamples];
+        this.pauseStartTimeIndex = new double[maxSamples];
+        this.pauseDeltaTimeIndex = new double[maxSamples];
         this.startTimeTable =  new Hashtable<T, Integer>();
     }
 
@@ -62,20 +68,52 @@ public class JProfile <T extends Comparable<? super T>> {
     /**
      * Determines the amount of time that has passed since profiling of the given sample id had started.
      * Records the difference in time within the delta time index.
-     * @param id the id of the current data point what is being recorded
+     * @param id the id of the current data point being recorded
      * @param executions
      */
     public void stopSample(T id, int executions) {
         // Get the time first to minimize error
-        double time = System.nanoTime();
+        double now = System.nanoTime();
 
         if(startTimeTable.containsKey(id)) {
             int idx = startTimeTable.get(id);
-            deltaTimeIndex[idx] = (time - startTimeIndex[idx]) / (double)executions;
+            deltaTimeIndex[idx] = ((now - startTimeIndex[idx]) - pauseDeltaTimeIndex[idx]) / (double)executions;
         }
         else {
             throw new NullPointerException();
         }
+    }
+    
+    /**
+     * Starts recording down time for the given sample. This will be subtracted from the total
+     * run time when the sample is stopped.
+     * @param id the id of the current data point being recorded
+     */
+    public void pauseSample(T id) {
+    	double now = System.nanoTime();
+    	
+    	if(startTimeTable.containsKey(id)) {
+            int idx = startTimeTable.get(id);
+            pauseStartTimeIndex[idx] = now;
+        }
+        else {
+            throw new NullPointerException();
+        }
+    }
+    
+    /**
+     * Records the total elapsed down time, and adds it to the total down time for the current
+     * sample. This down time will be subtracted from the total sample runtime.
+     * @param id the id of the current data point being recorded
+     */
+    public void resumeSample(T id) {
+    	if(startTimeTable.containsKey(id)) {
+    		int idx = startTimeTable.get(id);
+    		pauseDeltaTimeIndex[idx] += (System.nanoTime() - pauseStartTimeIndex[idx]);
+    	}
+    	else {
+    		throw new NullPointerException();
+    	}
     }
 
     /**
@@ -104,8 +142,7 @@ public class JProfile <T extends Comparable<? super T>> {
             units = "hrs";
         }
         else {
-            System.out.println("[JProfile] error: invalid time scale given for export of profile '" + name + "'");
-            return;
+        	units = "";
         }
 
         try {
@@ -132,4 +169,3 @@ public class JProfile <T extends Comparable<? super T>> {
         }
     }
 }
-
