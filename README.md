@@ -1,54 +1,58 @@
 # JProfile
 JProfile is a simple tool that allows for the easy analysis of code. It automatically keeps track of function performance and exports the results in csv format for use in excel and other spreadsheet software.
 
-## Usage
-First, we should include the JProfile class.
-```java
-import net.devmentality.JProfile;
-```
-To begin analyzing code, a new profile must first be created. When this is done, we must also specify the name of the profile, and the maximum number of data points it can hold. Any unused capacity will be ignored.
+## Example
+```Java
+public class RandomSort {
+    private static Random r = new Random(System.currentTimeMillis());
 
-We also specify the data type used as the x axis when collecting data. This will also be the data type used as the id for a sample.
-
-```java
-JProfile<Integer> profile = new JProfile<Integer>("TimerFunction", 50);
-```
-
-After creating the profile, we're ready to start adding data points. In order to get accurate figures, it is highly recommended that you run your algorithm many times per measurement.
-
-```java
-// Lets profile our function at 10 different input sizes from 10 to 100
-for(int input_size = 10; input_size <= 100; input_size += 10){
-    
-    // Prepare for the actual profiling.
-    // We don't want to do any calculations other than the one we are measuring in the loop
-    int[] input = new int[input_size];
-    for(int i = 0; i < input_size; i++){
-        input[i] = i;
+    // Generates a list of random numbers
+    public static ArrayList<Integer> generateList(int size){
+        ArrayList<Integer> list = new ArrayList<>();
+        for(int i = 0; i < size; i++){
+            list.add(r.nextInt());
+        }
+        return list;
     }
-    
-    // Now we can begin timing the actual algorithm
-    // In the future, JProfile will have tools to make these prepatory steps unnecessary
-        
-    // Record a new data point and use our input_size as the point on the x axis
-    // We can use any data type for our x axis, as long as it is a Comparable type
-    profile.startSample(input_size);
-    for(int i = 0; i < 100; i++){
-    
-        // We can pause the current sample to perform other tasks
-        profile.pauseSample(input_size);
-        modifyArray(input);
-        profile.resumeSample(input_size);
-        
-        ourCoolAlgorithm(input);
+
+    public static void main(String[] args){
+        int min_length = 0;
+        int max_length = 100000;
+
+        int iterations_per_sample = 10;
+
+        ArrayList<Integer> list;
+
+        // Create a new profiler. We specify that the data type for it's x axis is 'Integer'.
+        // We also specify that it can hold a maximum of 1000 data points, but we won't use all of them.
+        JProfile<Integer> profile = new JProfile<>("Random List Function", 1000);
+
+        // Collect different data points by using out function with different inputs
+        for(int length = min_length; length <= max_length; length += 1000){
+
+            // Start a new data point
+            profile.startSample(length);
+
+            // Do multiple iterations per sample to get a more accurate result
+            for(int j = 0; j < iterations_per_sample; j++){
+
+                // We can pause the profiler to prevent certain sections of code from affecting our results
+                profile.pauseSample(length);
+                list = generateList(length);
+                profile.resumeSample(length);
+
+                // Profile Java's sort method
+                Collections.sort(list);
+            }
+            // Stop sampling and save the data point
+            profile.stopSample(length, iterations_per_sample);
+        }
+
+        // Export all recorded data points to a .csv file
+        // This can be opened in excel or other spreadsheet applications
+        profile.export(JProfile.Milliseconds);
     }
-    
-    // Stop recording the new data point. Tell JProfile that we ran our function 100 times.
-    profile.stopSample(input_size, 100);
 }
-
-// Export the data to a csv file
-profile.export(JProfile.Milliseconds);
 ```
 
 ## Downloads
